@@ -10,18 +10,35 @@ Code Quality: **ESLint + Prettier**
 
 ```
 frontend/
-├── src/                  # 프로젝트 소스 코드
-├── public/               # 정적 파일
-├── .eslintrc.cjs         # ESLint 설정
-├── .gitignore            # Git 제외 설정
-├── .prettierrc           # Prettier 코드 포맷팅 설정
-├── index.html            # 진입 HTML 파일
-├── package.json          # 프로젝트 설정 및 의존성
-├── package-lock.json     # 패키지 버전 고정
-├── tsconfig.json         # TypeScript 설정
-├── tsconfig.app.json     # 앱별 TS 설정
-├── tsconfig.node.json    # Node별 TS 설정
-└── vite.config.ts        # Vite 빌드 설정
+├── public/                 # 정적 파일 (favicon, index.html 등)
+├── src/                    # 프로젝트 소스 코드
+│   ├── api/                # Axios 인스턴스, API 모듈
+│   ├── assets/             # 이미지, 아이콘, 폰트 등 정적 리소스
+│   ├── components/         # 재사용 가능한 UI 컴포넌트
+│   │    ├── common/        # 버튼, 모달, 테이블 등 범용 컴포넌트
+│   │    └── layout/        # Header, Sidebar, Footer 등 레이아웃
+│   ├── hooks/              # 커스텀 훅 (ex. useAuth, useFetch)
+│   ├── pages/              # 라우트 단위 페이지
+│   │    ├── auth/          # 로그인, 회원가입
+│   │    ├── dashboard/     # 대시보드
+│   │    └── users/         # 사용자 관리
+│   ├── routes/             # React Router 라우팅 설정
+│   ├── store/              # 전역 상태관리 (Redux, Recoil, Zustand 등)
+│   ├── styles/             # 전역 스타일 (CSS, SCSS, Tailwind config)
+│   ├── types/              # 전역 타입 정의 (DTO, 인터페이스 등)
+│   ├── utils/              # 유틸 함수 (포맷터, 검증 로직 등)
+│   ├── App.tsx             # 최상위 App 컴포넌트
+│   └── main.tsx            # 엔트리 포인트
+├── .eslintrc.cjs           # ESLint 설정
+├── .gitignore              # Git 제외 설정
+├── .prettierrc             # Prettier 코드 포맷팅 설정
+├── index.html              # 진입 HTML 파일
+├── package.json            # 프로젝트 설정 및 의존성
+├── package-lock.json       # 패키지 버전 고정
+├── tsconfig.json           # TypeScript 설정
+├── tsconfig.app.json       # 앱별 TS 설정
+├── tsconfig.node.json      # Node별 TS 설정
+└── vite.config.ts          # Vite 빌드 설정
 ```
 
 ---
