@@ -1,4 +1,3 @@
-// src/components/Navbar.tsx
 import MenuIcon from '@mui/icons-material/Menu';
 import {
   AppBar,

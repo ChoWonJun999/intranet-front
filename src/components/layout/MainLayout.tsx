@@ -5,7 +5,7 @@ export default function MainLayout() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="main-content">
+      <main className="main-content" style={{ margin: '1em' }}>
         <Outlet />
       </main>
       {/* <Footer /> */}

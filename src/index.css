@@ -9,11 +9,15 @@
 
 /* 기본 문서 설정 */
 html {
+  height: 100%;
+  width: 100%;
   line-height: 1.15; /* 브라우저 간 일관성 */
   -webkit-text-size-adjust: 100%; /* iOS 폰트 자동 확대 방지 */
 }
 
 body {
+  height: 100%;
+  width: 100%;
   min-height: 100dvh; /* 모바일 브라우저 주소창 변동 고려 */
   font-family:
     system-ui,
@@ -28,6 +32,10 @@ body {
   line-height: 1.5;
   background: #fff;
   color: #000;
+}
+
+.root {
+  height: 100%;
 }
 
 /* 제목/문단 */
@@ -68,6 +76,7 @@ select {
   border: none;
   outline: none;
 }
+
 button {
   cursor: pointer;
 }

@@ -1,4 +1,3 @@
-// src/theme.ts
 import { alpha, createTheme } from '@mui/material/styles';
 
 const PRIMARY_MAIN = '#103F6F';
