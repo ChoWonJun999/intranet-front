@@ -115,3 +115,15 @@ td {
     scroll-behavior: auto !important;
   }
 }
+
+input:required {
+  border-color: #dc2626;
+}
+
+input:focus:invalid {
+  border-color: #dc2626;
+}
+
+input:focus:required {
+  border-color: #dc2626;
+}
