@@ -56,16 +56,6 @@ function CustomField(props: TextProps) {
     ...props.inputProps,
   };
 
-  const sx = {
-    '& .MuiOutlinedInput-root.Mui-error:hover .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#61050aff',
-    },
-    '& .MuiOutlinedInput-root.Mui-focused.Mui-error .MuiOutlinedInput-notchedOutline': {
-      borderColor: 'error.main',
-    },
-    ...props.sx,
-  };
-
   return (
     <TextField
       type="email"
@@ -80,7 +70,7 @@ function CustomField(props: TextProps) {
       error={isError}
       size={props.size ?? 'small'}
       label={props.label}
-      sx={sx}
+      sx={props.sx}
       // helperText={props.helperText}
       fullWidth={props.fullWidth ?? false}
       value={value}

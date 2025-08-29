@@ -116,14 +116,10 @@ td {
   }
 }
 
-input:required {
+.MuiOutlinedInput-root.Mui-error:hover .MuiOutlinedInput-notchedOutline {
   border-color: #dc2626;
 }
 
-input:focus:invalid {
-  border-color: #dc2626;
-}
-
-input:focus:required {
+.MuiOutlinedInput-root.Mui-focused.Mui-error .MuiOutlinedInput-notchedOutline {
   border-color: #dc2626;
 }

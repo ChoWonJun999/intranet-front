@@ -42,7 +42,11 @@ function CustomField(props: TextProps) {
   };
 
   const handleInput = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.currentTarget.setCustomValidity('');
+    const el = e.currentTarget as HTMLInputElement;
+    el.setCustomValidity('');
+    if (el.validity.valid) {
+      setIsError(false);
+    }
   };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -66,16 +70,6 @@ function CustomField(props: TextProps) {
     ...props.inputProps,
   };
 
-  const sx = {
-    '& .MuiOutlinedInput-root.Mui-error:hover .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#61050aff',
-    },
-    '& .MuiOutlinedInput-root.Mui-focused.Mui-error .MuiOutlinedInput-notchedOutline': {
-      borderColor: 'error.main',
-    },
-    ...props.sx,
-  };
-
   return (
     <TextField
       type={showPassword ? 'text' : 'password'}
@@ -83,7 +77,6 @@ function CustomField(props: TextProps) {
       name={props.name}
       placeholder={props.placeholder}
       required
-      //   required={props.required}
       disabled={props.disabled}
       autoComplete={props.autoComplete ?? 'off'}
       autoFocus={props.autoFocus ?? false}
@@ -91,8 +84,7 @@ function CustomField(props: TextProps) {
       error={isError}
       size={props.size ?? 'small'}
       label={props.label}
-      sx={sx}
-      // helperText={props.helperText}
+      sx={props.sx}
       fullWidth={props.fullWidth ?? false}
       value={value}
       onChange={handleChange}

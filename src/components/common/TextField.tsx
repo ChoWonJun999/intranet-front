@@ -20,6 +20,7 @@ function CustomField(props: TextProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setValue(e.target.value);
+    e.target.setCustomValidity('');
     props.onChange?.(e);
   };
 
@@ -28,6 +29,7 @@ function CustomField(props: TextProps) {
       const empty = e.target.value.trim() === '';
       setIsError(empty);
     }
+
     props.onBlur?.(e);
   };
 
@@ -35,32 +37,22 @@ function CustomField(props: TextProps) {
     props.onFocus?.(e);
   };
 
-  const handleInput = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.currentTarget.setCustomValidity('');
-    // setIsError(false);
+  const handleInvalid = (e: any) => {
+    const el = e.target as HTMLInputElement;
+    el.setCustomValidity('');
+    if (e.target.value === '') {
+      el.setCustomValidity(props.label + '을(를) 입력하세요.');
+      setIsError(true);
+    } else {
+      el.setCustomValidity('');
+      setIsError(false);
+    }
+    props.onInvalid?.(e);
   };
 
   const inputProps = {
     maxLength: props.multiline ? 1000 : 100,
-    onInvalid: (e: any) => {
-      const el = e.target as HTMLInputElement;
-      if (el.validity.valueMissing) {
-        el.setCustomValidity(props.label + '을(를) 입력하세요.');
-        setIsError(true);
-      }
-    },
-    onInput: handleInput,
     ...props.inputProps,
-  };
-
-  const sx = {
-    '& .MuiOutlinedInput-root.Mui-error:hover .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#61050aff',
-    },
-    '& .MuiOutlinedInput-root.Mui-focused.Mui-error .MuiOutlinedInput-notchedOutline': {
-      borderColor: 'error.main',
-    },
-    ...props.sx,
   };
 
   return (
@@ -80,13 +72,13 @@ function CustomField(props: TextProps) {
       error={isError}
       size={props.size ?? 'small'}
       label={props.label}
-      sx={sx}
-      // helperText={props.helperText}
+      sx={props.sx}
       fullWidth={props.fullWidth ?? false}
       value={value}
       onChange={handleChange}
       onBlur={handleBlur}
       onFocus={handleFocus}
+      onInvalid={handleInvalid}
       inputProps={inputProps}
       InputLabelProps={props.InputLabelProps}
     />
