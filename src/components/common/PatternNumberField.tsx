@@ -1,124 +1,155 @@
-/*
-import FormControl from '@mui/material/FormControl';
-import Input from '@mui/material/Input';
-import InputLabel from '@mui/material/InputLabel';
 import type { BaseTextFieldProps } from '@mui/material/TextField';
-import React from 'react';
-import { IMaskInput } from 'react-imask';
+import TextField from '@mui/material/TextField';
+import { useEffect, useRef, useState } from 'react';
 
-interface CustomProps {
-  onChange: (event: { target: { name: string; value: string } }) => void;
-  name: string;
-}
-const TextMaskCustom = React.forwardRef<HTMLInputElement, CustomProps>(
-  function TextMaskCustom(props, ref) {
-    const { onChange, ...other } = props;
-    return (
-      <IMaskInput
-        {...other}
-        mask="#00-000-0000"
-        definitions={{
-          '#': /[1-9]/,
-        }}
-        inputRef={ref}
-        onAccept={(value: any) => onChange({ target: { name: props.name, value } })}
-        overwrite
-      />
-    );
-  }
-);
+export type PatternType = 'MOBILE' | 'LANDLINE' | 'REPRESENTATIVE';
 
-export type TextProps = Omit<
-  BaseTextFieldProps & {
-    onChange?: React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>;
-    thousandSeparator?: boolean | string;
-    decimalScale?: number;
-    fixedDecimalScale?: boolean;
-    allowNegative?: boolean;
-    allowLeadingZeros?: boolean;
-    suffix?: string;
-    prefix?: string;
-    pattern?: string;
-    min?: number;
-    max?: number;
-    maxLength?: number;
-  },
-  'type'
->;
+export type TextProps = BaseTextFieldProps & {
+  onChange?: React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>;
+  patternType: PatternType;
+  patternLength?: Number;
+};
 
-function CustomField() {
-  const [values, setValues] = React.useState('010-000-0000');
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValues(e.target.value);
-  };
-
-  return (
-    <FormControl variant="standard">
-      <InputLabel htmlFor="formatted-text-mask-input">react-imask</InputLabel>
-      <Input
-        value={values}
-        onChange={handleChange}
-        name="textmask"
-        id="formatted-text-mask-input"
-        inputComponent={TextMaskCustom as any}
-      />
-    </FormControl>
-  );
-}
-
-export default CustomField;
- */
-
-import React, { useRef, useState } from 'react';
-
-function PhoneInput() {
-  const [value, setValue] = useState('');
+function CustomField(props: TextProps) {
+  const [value, setValue] = useState(props.value ?? '');
+  const [isError, setIsError] = useState(props.error ?? false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const formatPhoneNumber = (digits: string) => {
-    const part1 = digits.substring(0, 3);
-    const part2 = digits.substring(3, 6);
-    const part3 = digits.substring(6, 10);
+  const patternLength =
+    props.patternType === 'MOBILE'
+      ? 13
+      : props.patternType === 'LANDLINE'
+        ? 12
+        : props.patternType === 'REPRESENTATIVE'
+          ? 9
+          : null;
 
-    if (digits.length > 6) return `${part1}-${part2}-${part3}`;
-    if (digits.length > 3) return `${part1}-${part2}`;
-    if (digits.length > 0) return `${part1}`;
-    return '';
+  useEffect(() => {
+    if (props.value !== undefined) setValue(props.value || '');
+  }, [props.value]);
+
+  useEffect(() => {
+    if (props.error !== undefined) setIsError(props.error);
+  }, [props.error]);
+
+  const formatPhoneNumber = (digits: string) => {
+    switch (props.patternType) {
+      case 'MOBILE':
+        if (digits.length <= 3) return digits;
+        else if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+        else if (digits.length <= 10)
+          return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+        return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+      case 'LANDLINE':
+        if (digits.length <= 4) return digits;
+        else if (digits.length <= 5) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+        else if (digits.length <= 9)
+          return `${digits.slice(0, 2)}-${digits.slice(2, 5)}-${digits.slice(5)}`;
+        return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6, 10)}`;
+      case 'REPRESENTATIVE':
+        if (digits.length <= 4) return digits;
+        return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+      default:
+        return digits;
+    }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const clearValidity = () => inputRef.current?.setCustomValidity('');
+  const setValidity = (msg: string) => inputRef.current?.setCustomValidity(msg);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const el = e.target;
-    const cursor = el.selectionStart || 0; // 입력 전 커서 위치
+    const prevValue = String(value);
+    const prevDigits = prevValue.replace(/\D/g, '');
+    const cursor = el.selectionStart || 0;
     const rawDigits = el.value.replace(/\D/g, '');
 
     const formatted = formatPhoneNumber(rawDigits);
     setValue(formatted);
+    clearValidity();
 
-    // setState 이후 커서 위치 복원
     requestAnimationFrame(() => {
       if (inputRef.current) {
         let newCursor = cursor;
 
-        // 고정 문자 때문에 커서 밀리는 보정
-        if (formatted[cursor - 1] && /\D/.test(formatted[cursor - 1])) {
-          newCursor++;
+        if (rawDigits.length > prevDigits.length) {
+          for (let i = 0; i < formatted.length; i++) {
+            if (formatted[i] === '-' && prevValue[i] !== '-') {
+              if (cursor > i) newCursor++;
+            }
+          }
+
+          if (formatted[newCursor] === '-') newCursor++;
         }
 
         inputRef.current.setSelectionRange(newCursor, newCursor);
       }
     });
+
+    props.onChange?.(e);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (props.required) {
+      const empty = e.target.value.trim() === '';
+      setIsError(empty);
+
+      if (patternLength && patternLength !== e.target.value.length) {
+        setValidity(`규격이 맞지 않습니다.`);
+        setIsError(true);
+      }
+    }
+
+    props.onBlur?.(e);
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    props.onFocus?.(e);
+  };
+
+  const handleInvalid = (e: any) => {
+    if (e.target.value === '') {
+      setValidity(props.label + '을(를) 입력하세요.');
+      setIsError(true);
+    }
+
+    props.onInvalid?.(e);
+  };
+
+  const inputProps = {
+    maxLength: patternLength,
+    ...props.inputProps,
   };
 
   return (
-    <input
-      ref={inputRef}
+    <TextField
+      id={props.id}
+      name={props.name}
+      placeholder={props.placeholder}
+      required={props.required}
+      disabled={props.disabled}
+      multiline={props.multiline}
+      rows={props.rows}
+      maxRows={props.maxRows}
+      minRows={props.minRows}
+      autoComplete={props.autoComplete ?? 'off'}
+      autoFocus={props.autoFocus ?? false}
+      variant={props.variant}
+      error={isError}
+      size={props.size ?? 'small'}
+      label={props.label}
+      sx={props.sx}
+      fullWidth={props.fullWidth ?? false}
       value={value}
       onChange={handleChange}
-      placeholder="(123) 456-7890"
-      maxLength={14}
+      onBlur={handleBlur}
+      onFocus={handleFocus}
+      onInvalid={handleInvalid}
+      inputRef={inputRef}
+      inputProps={inputProps}
+      InputLabelProps={props.InputLabelProps}
     />
   );
 }
 
-export default PhoneInput;
+export default CustomField;
