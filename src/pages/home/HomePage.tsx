@@ -4,11 +4,11 @@ export default function HomePage() {
   return (
     <>
       <form action="">
-        {/* <Common.extField label="이름" /> */}
-        {/* <Common.extField label="비고" multiline rows={2} /> */}
-        {/* <Common.mailField label="이메일" /> */}
-        {/* <Common.umberField required label="수량" min={10} max={100} /> */}
-        {/* <Common.atternNumberField required patternType={'MOBILE'} /> */}
+        {/* <Common.TextField label="이름" /> */}
+        {/* <Common.TextField label="비고" multiline rows={2} /> */}
+        {/* <Common.EmailField label="이메일" /> */}
+        {/* <Common.NumberField required label="수량" min={10} max={100} /> */}
+        {/* <Common.PatternNumberField required patternType={'MOBILE'} /> */}
 
         {/* <Common.DateField /> */}
         {/* <Common.DateField defaultValue="2025-10-22" viewsType="month" /> */}
