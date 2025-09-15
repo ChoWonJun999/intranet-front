@@ -17,12 +17,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ko';
 import * as React from 'react';
 
-type DateRangeFieldProps = {
-  viewsType?: 'year' | 'month' | 'day';
-  defaultValue?: string | { start: string; end: string };
-  onChange?: (value: string | { start: string; end: string }) => void;
-};
-
 function RangePickersDay(
   props: PickersDayProps & {
     start?: Dayjs | null;
@@ -66,6 +60,12 @@ function RangePickersDay(
     />
   );
 }
+
+type DateRangeFieldProps = {
+  viewsType?: 'year' | 'month' | 'day';
+  defaultValue?: string | { start: string; end: string };
+  onChange?: (value: string | { start: string; end: string }) => void;
+};
 
 function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRangeFieldProps) {
   const startRef = React.useRef<HTMLInputElement | null>(null);
@@ -116,11 +116,20 @@ function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRange
   };
 
   const handleClose = () => {
+    const commitedStartDate = committedStart ? dayjs(committedStart) : dayjs();
+    const commitedEndDate = committedEnd ? dayjs(committedEnd) : dayjs();
+    setDraftStart(commitedStartDate);
+    setDraftEnd(commitedEndDate);
+    onChange?.({
+      start: commitedStartDate.format(formatForm),
+      end: commitedEndDate.format(formatForm),
+    });
+
     setAnchorEl(null);
   };
 
   const handleClickAway = () => {
-    handleClose();
+    setAnchorEl(null);
   };
 
   const handleConfirm = () => {
@@ -134,7 +143,120 @@ function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRange
       });
     }
 
-    handleClose();
+    setAnchorEl(null);
+  };
+
+  type CalendarAction =
+    | 'current'
+    | 'next'
+    | 'prev'
+    | number
+    | 'Q1'
+    | 'Q2'
+    | 'Q3'
+    | 'Q4'
+    | 'H1'
+    | 'H2';
+
+  const handelSetting = (action: CalendarAction) => {
+    let settingStartDate = draftStart || dayjs();
+    let settingEndDate = draftEnd || dayjs();
+
+    switch (action) {
+      case 'current':
+        settingStartDate = dayjs();
+        settingEndDate = dayjs();
+        break;
+      case 'next':
+        settingStartDate = dayjs().add(1, viewsType);
+        settingEndDate = dayjs().add(1, viewsType);
+        break;
+      case 'prev':
+        settingStartDate = dayjs().subtract(1, viewsType);
+        settingEndDate = dayjs().subtract(1, viewsType);
+        break;
+      case 'Q1':
+        settingStartDate = dayjs().month(0).date(1);
+        settingEndDate = dayjs().month(2).endOf('month');
+        break;
+      case 'Q2':
+        settingStartDate = dayjs().month(3).date(1);
+        settingEndDate = dayjs().month(5).endOf('month');
+        break;
+      case 'Q3':
+        settingStartDate = dayjs().month(6).date(1);
+        settingEndDate = dayjs().month(8).endOf('month');
+        break;
+      case 'Q4':
+        settingStartDate = dayjs().month(9).date(1);
+        settingEndDate = dayjs().month(11).endOf('month');
+        break;
+      case 'H1':
+        settingStartDate = dayjs().month(0).date(1);
+        settingEndDate = dayjs().month(5).endOf('month');
+        break;
+      case 'H2':
+        settingStartDate = dayjs().month(6).date(1);
+        settingEndDate = dayjs().month(11).endOf('month');
+        break;
+      default:
+        // 월 선택 (0~11)
+        settingStartDate = settingStartDate.month(action as number).date(1);
+        settingEndDate = settingEndDate.month(action as number).endOf('month');
+    }
+
+    setDraftStart(settingStartDate);
+    setDraftEnd(settingEndDate);
+  };
+
+  const buttonTodayText = viewsType === 'year' ? '년' : viewsType === 'month' ? '월' : '일';
+  const CalendarControls = function () {
+    return (
+      <Box>
+        <Box>
+          <Button size="small" onClick={() => handelSetting('current')}>
+            금{buttonTodayText}
+          </Button>
+          <Button size="small" onClick={() => handelSetting('prev')}>
+            작{buttonTodayText}
+          </Button>
+          <Button size="small" onClick={() => handelSetting('next')}>
+            익{buttonTodayText}
+          </Button>
+        </Box>
+        {viewsType === 'year' ? null : (
+          <>
+            <Box>
+              <Button size="small" onClick={() => handelSetting('Q1')}>
+                1분기
+              </Button>
+              <Button size="small" onClick={() => handelSetting('Q2')}>
+                2분기
+              </Button>
+              <Button size="small" onClick={() => handelSetting('Q3')}>
+                3분기
+              </Button>
+              <Button size="small" onClick={() => handelSetting('Q4')}>
+                4분기
+              </Button>
+              <Button size="small" onClick={() => handelSetting('H1')}>
+                상반기
+              </Button>
+              <Button size="small" onClick={() => handelSetting('H2')}>
+                하반기
+              </Button>
+            </Box>
+            <Box>
+              {Array.from({ length: 12 }, (_, i) => (
+                <Button key={i} size="small" onClick={() => handelSetting(i)}>
+                  {i + 1}월
+                </Button>
+              ))}
+            </Box>
+          </>
+        )}
+      </Box>
+    );
   };
 
   const formatForm =
@@ -146,8 +268,6 @@ function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRange
       : viewsType === 'month'
         ? formatForm.length + 0.5
         : formatForm.length - 1;
-
-  const CalendarmaxHeight = 300;
 
   const defaultTextFieldStyle = {
     width: `${formatFormWidth}rem`,
@@ -166,6 +286,79 @@ function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRange
         <CalendarTodayIcon sx={{ cursor: 'pointer' }} />
       </InputAdornment>
     ),
+  };
+
+  const CalendarmaxHeight = 300;
+
+  const defaultSlotProps = (position: 'start' | 'end') => {
+    position === 'end';
+    const sp = {
+      day: (dayProps: PickersDayProps) => ({
+        onDoubleClick: () => {
+          console.log(dayProps);
+          handleConfirm();
+        },
+        sx: {
+          ...(dayProps.isInRange && {
+            bgcolor: '#E3F2FD',
+            borderRadius: 0,
+          }),
+          ...(dayProps.isStart && {
+            bgcolor: '#1976d2',
+            color: 'white',
+            borderTopLeftRadius: '50%',
+            borderBottomLeftRadius: '50%',
+          }),
+          ...(dayProps.isEnd && {
+            bgcolor: '#1976d2',
+            color: 'white',
+            borderTopRightRadius: '50%',
+            borderBottomRightRadius: '50%',
+          }),
+          ...(dayProps.disabled && {
+            color: '#BDBDBD',
+            bgcolor: 'transparent',
+            textDecoration: 'line-through',
+            pointerEvents: 'none',
+          }),
+        },
+      }),
+      monthButton: {
+        onDoubleClick: () => {
+          handleConfirm();
+        },
+        sx: {
+          '&.Mui-disabled': {
+            color: '#BDBDBD',
+            bgcolor: 'transparent',
+            textDecoration: 'line-through',
+            pointerEvents: 'none',
+          },
+        },
+      },
+      yearButton: {
+        onDoubleClick: () => {
+          handleConfirm();
+        },
+      },
+    };
+
+    if (viewsType === 'month') {
+      sp.monthButton = {
+        ...sp.monthButton,
+        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+          const el = e.currentTarget;
+          const selectedMonth = parseInt(el.textContent!.slice(0, -1), 10) - 1;
+          e.preventDefault();
+          e.stopPropagation();
+
+          const newDate = dayjs(position === 'start' ? draftStart : draftEnd).month(selectedMonth);
+          position === 'start' ? setDraftStart(newDate) : setDraftEnd(newDate);
+        },
+      } as any;
+    }
+
+    return sp;
   };
 
   return (
@@ -192,35 +385,8 @@ function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRange
 
         <Popper open={open} anchorEl={anchorEl} placement="bottom-start">
           <ClickAwayListener onClickAway={handleClickAway}>
-            <Paper sx={{ p: 1, display: 'block', gap: 1 }}>
-              <Box>
-                <Box sx={{ display: 'flex' }}>
-                  <Box>오늘</Box>
-                  <Box>전일</Box>
-                </Box>
-                <>
-                  <Box sx={{ display: 'flex' }}>
-                    <Box>1/4분기</Box>
-                    <Box>2/4분기</Box>
-                    <Box>3/4분기</Box>
-                    <Box>4/4분기</Box>
-                  </Box>
-                  <Box sx={{ display: 'flex' }}>
-                    <Box>1월</Box>
-                    <Box>2월</Box>
-                    <Box>3월</Box>
-                    <Box>4월</Box>
-                    <Box>5월</Box>
-                    <Box>6월</Box>
-                    <Box>7월</Box>
-                    <Box>8월</Box>
-                    <Box>9월</Box>
-                    <Box>10월</Box>
-                    <Box>11월</Box>
-                    <Box>12월</Box>
-                  </Box>
-                </>
-              </Box>
+            <Paper sx={{ p: 1, display: 'block' }}>
+              {CalendarControls()}
               <>
                 <Box sx={{ display: 'flex' }}>
                   <DateCalendar
@@ -234,54 +400,32 @@ function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRange
                         setDraftEnd(null);
                       }
                     }}
-                    slots={{
-                      day: (dayProps) => (
-                        <RangePickersDay {...dayProps} start={draftStart} end={draftEnd} />
-                      ),
-                    }}
-                    slotProps={{
-                      monthButton: {
-                        sx: {
-                          '&.Mui-disabled': {
-                            color: '#ffffff',
-                            bgcolor: '#9E9E9E',
-                            borderRadius: '8px',
-                            opacity: 0.7,
-                            pointerEvents: 'none',
-                          },
-                        },
-                      },
-                    }}
+                    // slots={{
+                    //   day: (dayProps) => (
+                    //     <RangePickersDay {...dayProps} start={draftStart} end={draftEnd} />
+                    //   ),
+                    // }}
+                    slotProps={defaultSlotProps('end')}
                   />
                   <DateCalendar
                     value={draftEnd}
                     views={resolvedViews}
+                    openTo={viewsType}
                     sx={{ maxHeight: CalendarmaxHeight }}
                     minDate={draftStart || undefined}
                     onChange={(newDate) => setDraftEnd(newDate)}
-                    slots={{
-                      day: (dayProps) => (
-                        <RangePickersDay {...dayProps} start={draftStart} end={draftEnd} />
-                      ),
-                    }}
-                    slotProps={{
-                      monthButton: {
-                        sx: {
-                          '&.Mui-disabled': {
-                            color: '#BDBDBD',
-                            bgcolor: 'transparent',
-                            textDecoration: 'line-through',
-                            pointerEvents: 'none',
-                          },
-                        },
-                      },
-                    }}
+                    // slots={{
+                    //   day: (dayProps) => (
+                    //     <RangePickersDay {...dayProps} start={draftStart} end={draftEnd} />
+                    //   ),
+                    // }}
+                    slotProps={defaultSlotProps('end')}
                   />
                 </Box>
               </>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Box>
-                  선택기간:
+                  선택 기간:
                   {draftStart && draftEnd
                     ? viewsType === 'day'
                       ? `${draftEnd.diff(draftStart, 'day') + 1}일`

@@ -50,11 +50,15 @@ function DateField({ defaultValue, viewsType = 'day', onChange }: DateFieldProps
   };
 
   const handleClose = () => {
+    const commitedDate = committedSingle ? dayjs(committedSingle) : dayjs();
+    setDraftSingle(commitedDate);
+    onChange?.(commitedDate.format(formatForm));
+
     setAnchorEl(null);
   };
 
   const handleClickAway = () => {
-    handleClose();
+    setAnchorEl(null);
   };
 
   const handleConfirm = () => {
@@ -63,7 +67,25 @@ function DateField({ defaultValue, viewsType = 'day', onChange }: DateFieldProps
       onChange?.(draftSingle.format(formatForm));
     }
 
-    handleClose();
+    setAnchorEl(null);
+  };
+
+  const handelSetting = (action: 'current' | 'next' | 'prev' | number) => {
+    let settingDate = draftSingle || dayjs();
+    switch (action) {
+      case 'current':
+        settingDate = dayjs();
+        break;
+      case 'next':
+        settingDate = dayjs().add(1, viewsType);
+        break;
+      case 'prev':
+        settingDate = dayjs().subtract(1, viewsType);
+        break;
+      default:
+        settingDate = settingDate.month(action);
+    }
+    setDraftSingle(settingDate);
   };
 
   const formatForm =
@@ -97,6 +119,94 @@ function DateField({ defaultValue, viewsType = 'day', onChange }: DateFieldProps
     ),
   };
 
+  const buttonTodayText = viewsType === 'year' ? '년' : viewsType === 'month' ? '월' : '일';
+
+  const CalendarControls = () => {
+    return (
+      <Box>
+        <Box>
+          <Button size="small" onClick={() => handelSetting('current')}>
+            금{buttonTodayText}
+          </Button>
+          <Button size="small" onClick={() => handelSetting('prev')}>
+            작{buttonTodayText}
+          </Button>
+          <Button size="small" onClick={() => handelSetting('next')}>
+            익{buttonTodayText}
+          </Button>
+        </Box>
+        {viewsType === 'year' ? null : (
+          <>
+            <Box>
+              <Button size="small" onClick={() => handelSetting(0)}>
+                1분기
+              </Button>
+              <Button size="small" onClick={() => handelSetting(3)}>
+                2분기
+              </Button>
+              <Button size="small" onClick={() => handelSetting(6)}>
+                3분기
+              </Button>
+              <Button size="small" onClick={() => handelSetting(9)}>
+                4분기
+              </Button>
+              <Button size="small" onClick={() => handelSetting(0)}>
+                상반기
+              </Button>
+              <Button size="small" onClick={() => handelSetting(5)}>
+                하반기
+              </Button>
+            </Box>
+            <Box>
+              {Array.from({ length: 12 }, (_, i) => (
+                <Button key={i} size="small" onClick={() => handelSetting(i)}>
+                  {i + 1}월
+                </Button>
+              ))}
+            </Box>
+          </>
+        )}
+      </Box>
+    );
+  };
+
+  const defaultSlotProps = () => {
+    const sp = {
+      day: {
+        onDoubleClick: () => {
+          handleConfirm();
+        },
+      },
+      monthButton: {
+        onDoubleClick: () => {
+          handleConfirm();
+        },
+      },
+      yearButton: {
+        onDoubleClick: () => {
+          handleConfirm();
+        },
+      },
+    };
+
+    if (viewsType === 'month') {
+      sp.monthButton = {
+        ...sp.monthButton,
+        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+          const el = e.currentTarget;
+          const selectedMonth = parseInt(el.textContent!.slice(0, -1), 10) - 1;
+          e.preventDefault();
+          e.stopPropagation();
+
+          const newDate = dayjs(draftSingle).month(selectedMonth);
+          setDraftSingle(newDate);
+        },
+      } as any;
+    }
+
+    return sp;
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
       <Box sx={{ display: 'inline-flex' }}>
@@ -112,44 +222,18 @@ function DateField({ defaultValue, viewsType = 'day', onChange }: DateFieldProps
         <Popper open={open} anchorEl={anchorEl} placement="bottom-start">
           <ClickAwayListener onClickAway={handleClickAway}>
             <Paper sx={{ p: 1, display: 'block', gap: 1 }}>
-              <Box>
-                <Box sx={{ display: 'flex' }}>
-                  <Box>오늘</Box>
-                  <Box>전일</Box>
-                </Box>
-              </Box>
+              {CalendarControls()}
               <DateCalendar
                 value={draftSingle}
                 views={resolvedViews}
+                openTo={viewsType}
                 sx={{ maxHeight: CalendarmaxHeight }}
                 onChange={(newDate) => setDraftSingle(newDate)}
-                slotProps={{
-                  day: {
-                    onDoubleClick: () => {
-                      handleConfirm();
-                    },
-                  },
-                  monthButton: {
-                    onClick: (e) => {
-                      console.log(e);
-                      console.log(e.target);
-                      console.log(e.currentTarget);
-                      e.currentTarget.onselect;
-                      // e.preventDefault();
-                      // handleConfirm();
-                    },
-                    onDoubleClick: () => {
-                      handleConfirm();
-                    },
-                  },
-                  yearButton: {
-                    onDoubleClick: () => {
-                      handleConfirm();
-                    },
-                  },
-                }}
+                slotProps={defaultSlotProps()}
               />
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Box>선택 일자: {draftSingle?.format(formatForm)}</Box>
+
                 <Box>
                   <Button size="small" variant="contained" onClick={handleConfirm}>
                     확인
