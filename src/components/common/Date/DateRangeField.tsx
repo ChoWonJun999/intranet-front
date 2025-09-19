@@ -8,144 +8,84 @@ import {
   Popper,
   TextField,
 } from '@mui/material';
+import type { BaseTextFieldProps } from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import type { PickersDayProps } from '@mui/x-date-pickers/PickersDay';
-import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/ko';
-import * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-function RangePickersDay(
-  props: PickersDayProps & {
-    start?: Dayjs | null;
-    end?: Dayjs | null;
-  }
-) {
-  const { day, start, end, outsideCurrentMonth, disabled, ...other } = props;
-  const isInRange = start && end && day.isAfter(start, 'day') && day.isBefore(end, 'day');
-  const isStart = start && day.isSame(start, 'day');
-  const isEnd = end && day.isSame(end, 'day');
+import CalendarControls from './CalendarControls';
+import RangePickersDay from './RangePickersDay';
+import { createRangeSlotProps, getFormatForm, getInputWidth, getRangeLength } from './utils';
 
-  return (
-    <PickersDay
-      {...other}
-      day={day}
-      outsideCurrentMonth={outsideCurrentMonth}
-      sx={{
-        ...(isInRange && {
-          bgcolor: '#E3F2FD',
-          borderRadius: 0,
-        }),
-        ...(isStart && {
-          bgcolor: '#1976d2',
-          color: 'white',
-          borderTopLeftRadius: '50%',
-          borderBottomLeftRadius: '50%',
-        }),
-        ...(isEnd && {
-          bgcolor: '#1976d2',
-          color: 'white',
-          borderTopRightRadius: '50%',
-          borderBottomRightRadius: '50%',
-        }),
-        ...(disabled && {
-          color: '#BDBDBD',
-          bgcolor: 'transparent',
-          textDecoration: 'line-through',
-          pointerEvents: 'none',
-        }),
-      }}
-    />
-  );
-}
-
-type DateRangeFieldProps = {
+type DateRangeFieldProps = BaseTextFieldProps & {
   viewsType?: 'year' | 'month' | 'day';
-  defaultValue?: string | { start: string; end: string };
-  onChange?: (value: string | { start: string; end: string }) => void;
+  defaultValue?: { start: string; end: string };
+  onChangePopup?: (value: { start: string; end: string }) => void;
 };
 
-function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRangeFieldProps) {
-  const startRef = React.useRef<HTMLInputElement | null>(null);
+function DateRangeField({ viewsType = 'day', size = 'small', ...props }: DateRangeFieldProps) {
+  const startRef = useRef<HTMLInputElement | null>(null);
+  const [isError, setIsError] = useState(props.error ?? false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const clearValidity = () => startRef.current?.setCustomValidity('');
+  const setValidity = (msg: string) => startRef.current?.setCustomValidity(msg);
 
-  const resolvedViews: Array<'year' | 'month' | 'day'> =
-    viewsType === 'year'
-      ? ['year']
-      : viewsType === 'month'
-        ? ['month', 'year']
-        : ['day', 'month', 'year'];
+  useEffect(() => {
+    if (props.error !== undefined) setIsError(props.error);
+  }, [props.error]);
 
-  let initialStart: Dayjs | null = null;
-  let initialEnd: Dayjs | null = null;
-
-  if (typeof defaultValue === 'object' && defaultValue) {
-    const hasStart = !!defaultValue.start;
-    const hasEnd = !!defaultValue.end;
-
-    if (hasStart && hasEnd) {
-      initialStart = dayjs(defaultValue.start);
-      initialEnd = dayjs(defaultValue.end);
-    } else if (hasStart && !hasEnd) {
-      initialStart = dayjs(defaultValue.start);
-      initialEnd = dayjs(defaultValue.start);
-    } else if (!hasStart && hasEnd) {
-      initialStart = dayjs(defaultValue.end);
-      initialEnd = dayjs(defaultValue.end);
-    }
-  } else if (typeof defaultValue === 'string') {
-    initialStart = dayjs(defaultValue);
-    initialEnd = dayjs(defaultValue);
-  }
-
+  // 초기값 세팅
   const today = dayjs();
+  const initialStart = props.defaultValue?.start ? dayjs(props.defaultValue.start) : null;
+  const initialEnd = props.defaultValue?.end ? dayjs(props.defaultValue.end) : null;
 
-  const [committedStart, setCommittedStart] = React.useState<Dayjs | null>(null);
-  const [committedEnd, setCommittedEnd] = React.useState<Dayjs | null>(null);
+  const [committedStart, setCommittedStart] = useState<Dayjs | null>(initialStart);
+  const [committedEnd, setCommittedEnd] = useState<Dayjs | null>(initialEnd);
 
-  const [draftStart, setDraftStart] = React.useState<Dayjs | null>(initialStart ?? today);
-  const [draftEnd, setDraftEnd] = React.useState<Dayjs | null>(initialEnd ?? today);
+  const [draftStart, setDraftStart] = useState<Dayjs | null>(initialStart || today);
+  const [draftEnd, setDraftEnd] = useState<Dayjs | null>(initialEnd || today);
 
   const open = Boolean(anchorEl);
+  const formatForm = getFormatForm(viewsType);
 
-  const handleOpen = () => {
-    setAnchorEl(startRef.current);
-  };
-
-  const handleClose = () => {
-    const commitedStartDate = committedStart ? dayjs(committedStart) : dayjs();
-    const commitedEndDate = committedEnd ? dayjs(committedEnd) : dayjs();
-    setDraftStart(commitedStartDate);
-    setDraftEnd(commitedEndDate);
-    onChange?.({
-      start: commitedStartDate.format(formatForm),
-      end: commitedEndDate.format(formatForm),
-    });
-
-    setAnchorEl(null);
-  };
-
-  const handleClickAway = () => {
-    setAnchorEl(null);
-  };
-
-  const handleConfirm = () => {
-    if (draftStart && draftEnd) {
+  /** 팝업 닫기 */
+  const closePopup = (mode: 'confirm' | 'cancel' | 'clickaway') => {
+    if (mode === 'confirm' && draftStart && draftEnd) {
+      clearValidity();
+      setIsError(false);
       setCommittedStart(draftStart);
       setCommittedEnd(draftEnd);
-
-      onChange?.({
+      const value = {
         start: draftStart.format(formatForm),
         end: draftEnd.format(formatForm),
+      };
+      props.onChangePopup?.(value);
+    }
+
+    if (mode === 'cancel' && committedStart && committedEnd) {
+      setDraftStart(committedStart);
+      setDraftEnd(committedEnd);
+      props.onChangePopup?.({
+        start: committedStart.format(formatForm),
+        end: committedEnd.format(formatForm),
       });
     }
 
     setAnchorEl(null);
   };
 
+  /** validation */
+  const handleInvalid = (e: React.FormEvent<HTMLInputElement>) => {
+    if (!e.currentTarget.value) {
+      setValidity('날짜를 선택하세요.');
+      setIsError(true);
+    }
+    props.onInvalid?.(e);
+  };
   type CalendarAction =
     | 'current'
     | 'next'
@@ -158,288 +98,165 @@ function DateRangeField({ defaultValue, viewsType = 'day', onChange }: DateRange
     | 'H1'
     | 'H2';
 
-  const handelSetting = (action: CalendarAction) => {
-    let settingStartDate = draftStart || dayjs();
-    let settingEndDate = draftEnd || dayjs();
+  const handleSetting = (action: CalendarAction) => {
+    let start = draftStart || dayjs();
+    let end = draftEnd || dayjs();
 
     switch (action) {
       case 'current':
-        settingStartDate = dayjs();
-        settingEndDate = dayjs();
+        start = dayjs();
+        end = dayjs();
         break;
       case 'next':
-        settingStartDate = dayjs().add(1, viewsType);
-        settingEndDate = dayjs().add(1, viewsType);
+        start = dayjs().add(1, viewsType);
+        end = dayjs().add(1, viewsType);
         break;
       case 'prev':
-        settingStartDate = dayjs().subtract(1, viewsType);
-        settingEndDate = dayjs().subtract(1, viewsType);
+        start = dayjs().subtract(1, viewsType);
+        end = dayjs().subtract(1, viewsType);
         break;
       case 'Q1':
-        settingStartDate = dayjs().month(0).date(1);
-        settingEndDate = dayjs().month(2).endOf('month');
+        start = dayjs().month(0).date(1);
+        end = dayjs().month(2).endOf('month');
         break;
       case 'Q2':
-        settingStartDate = dayjs().month(3).date(1);
-        settingEndDate = dayjs().month(5).endOf('month');
+        start = dayjs().month(3).date(1);
+        end = dayjs().month(5).endOf('month');
         break;
       case 'Q3':
-        settingStartDate = dayjs().month(6).date(1);
-        settingEndDate = dayjs().month(8).endOf('month');
+        start = dayjs().month(6).date(1);
+        end = dayjs().month(8).endOf('month');
         break;
       case 'Q4':
-        settingStartDate = dayjs().month(9).date(1);
-        settingEndDate = dayjs().month(11).endOf('month');
+        start = dayjs().month(9).date(1);
+        end = dayjs().month(11).endOf('month');
         break;
       case 'H1':
-        settingStartDate = dayjs().month(0).date(1);
-        settingEndDate = dayjs().month(5).endOf('month');
+        start = dayjs().month(0).date(1);
+        end = dayjs().month(5).endOf('month');
         break;
       case 'H2':
-        settingStartDate = dayjs().month(6).date(1);
-        settingEndDate = dayjs().month(11).endOf('month');
+        start = dayjs().month(6).date(1);
+        end = dayjs().month(11).endOf('month');
         break;
       default:
-        // 월 선택 (0~11)
-        settingStartDate = settingStartDate.month(action as number).date(1);
-        settingEndDate = settingEndDate.month(action as number).endOf('month');
+        start = start.month(action as number).date(1);
+        end = end.month(action as number).endOf('month');
     }
 
-    setDraftStart(settingStartDate);
-    setDraftEnd(settingEndDate);
-  };
-
-  const buttonTodayText = viewsType === 'year' ? '년' : viewsType === 'month' ? '월' : '일';
-  const CalendarControls = function () {
-    return (
-      <Box>
-        <Box>
-          <Button size="small" onClick={() => handelSetting('current')}>
-            금{buttonTodayText}
-          </Button>
-          <Button size="small" onClick={() => handelSetting('prev')}>
-            작{buttonTodayText}
-          </Button>
-          <Button size="small" onClick={() => handelSetting('next')}>
-            익{buttonTodayText}
-          </Button>
-        </Box>
-        {viewsType === 'year' ? null : (
-          <>
-            <Box>
-              <Button size="small" onClick={() => handelSetting('Q1')}>
-                1분기
-              </Button>
-              <Button size="small" onClick={() => handelSetting('Q2')}>
-                2분기
-              </Button>
-              <Button size="small" onClick={() => handelSetting('Q3')}>
-                3분기
-              </Button>
-              <Button size="small" onClick={() => handelSetting('Q4')}>
-                4분기
-              </Button>
-              <Button size="small" onClick={() => handelSetting('H1')}>
-                상반기
-              </Button>
-              <Button size="small" onClick={() => handelSetting('H2')}>
-                하반기
-              </Button>
-            </Box>
-            <Box>
-              {Array.from({ length: 12 }, (_, i) => (
-                <Button key={i} size="small" onClick={() => handelSetting(i)}>
-                  {i + 1}월
-                </Button>
-              ))}
-            </Box>
-          </>
-        )}
-      </Box>
-    );
-  };
-
-  const formatForm =
-    viewsType === 'year' ? 'YYYY' : viewsType === 'month' ? 'YYYY-MM' : 'YYYY-MM-DD';
-
-  const formatFormWidth =
-    viewsType === 'year'
-      ? formatForm.length + 2
-      : viewsType === 'month'
-        ? formatForm.length + 0.5
-        : formatForm.length - 1;
-
-  const defaultTextFieldStyle = {
-    width: `${formatFormWidth}rem`,
-    '& .MuiInputBase-root': {
-      cursor: 'pointer',
-    },
-    '& .MuiInputBase-input': {
-      cursor: 'pointer',
-    },
-  };
-
-  const defaultInputProps = {
-    readOnly: true,
-    endAdornment: (
-      <InputAdornment position="end" sx={{ cursor: 'pointer' }}>
-        <CalendarTodayIcon sx={{ cursor: 'pointer' }} />
-      </InputAdornment>
-    ),
-  };
-
-  const CalendarmaxHeight = 300;
-
-  const defaultSlotProps = (position: 'start' | 'end') => {
-    position === 'end';
-    const sp = {
-      day: (dayProps: PickersDayProps) => ({
-        onDoubleClick: () => {
-          console.log(dayProps);
-          handleConfirm();
-        },
-        sx: {
-          ...(dayProps.isInRange && {
-            bgcolor: '#E3F2FD',
-            borderRadius: 0,
-          }),
-          ...(dayProps.isStart && {
-            bgcolor: '#1976d2',
-            color: 'white',
-            borderTopLeftRadius: '50%',
-            borderBottomLeftRadius: '50%',
-          }),
-          ...(dayProps.isEnd && {
-            bgcolor: '#1976d2',
-            color: 'white',
-            borderTopRightRadius: '50%',
-            borderBottomRightRadius: '50%',
-          }),
-          ...(dayProps.disabled && {
-            color: '#BDBDBD',
-            bgcolor: 'transparent',
-            textDecoration: 'line-through',
-            pointerEvents: 'none',
-          }),
-        },
-      }),
-      monthButton: {
-        onDoubleClick: () => {
-          handleConfirm();
-        },
-        sx: {
-          '&.Mui-disabled': {
-            color: '#BDBDBD',
-            bgcolor: 'transparent',
-            textDecoration: 'line-through',
-            pointerEvents: 'none',
-          },
-        },
-      },
-      yearButton: {
-        onDoubleClick: () => {
-          handleConfirm();
-        },
-      },
-    };
-
-    if (viewsType === 'month') {
-      sp.monthButton = {
-        ...sp.monthButton,
-        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-          const el = e.currentTarget;
-          const selectedMonth = parseInt(el.textContent!.slice(0, -1), 10) - 1;
-          e.preventDefault();
-          e.stopPropagation();
-
-          const newDate = dayjs(position === 'start' ? draftStart : draftEnd).month(selectedMonth);
-          position === 'start' ? setDraftStart(newDate) : setDraftEnd(newDate);
-        },
-      } as any;
-    }
-
-    return sp;
+    setDraftStart(start);
+    setDraftEnd(end);
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ko">
       <Box sx={{ display: 'inline-flex' }}>
-        <Box sx={{ display: 'flex', gap: 0.5 }} onClick={() => handleOpen()}>
+        {/* Input Fields */}
+        <Box sx={{ display: 'flex', gap: 0.5 }} onClick={() => setAnchorEl(startRef.current)}>
           <TextField
+            {...props}
+            id={props.id ? props.id + '-start' : props.id}
             inputRef={startRef}
             value={committedStart ? committedStart.format(formatForm) : ''}
-            focused={open}
-            size="small"
-            sx={defaultTextFieldStyle}
-            InputProps={defaultInputProps}
+            error={isError}
+            size={size}
+            onInvalid={handleInvalid}
+            sx={{
+              width: `${getInputWidth(viewsType)}rem`,
+              '& .MuiInputBase-root, & .MuiInputBase-input': { cursor: 'pointer' },
+              ...props.sx,
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end" sx={{ cursor: 'pointer' }}>
+                  <CalendarTodayIcon sx={{ cursor: 'pointer' }} />
+                </InputAdornment>
+              ),
+              inputProps: { onKeyDown: (e) => e.preventDefault() },
+            }}
           />
-          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>~</Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>~</Box>
           <TextField
+            {...props}
+            id={props.id ? props.id + '-end' : props.id}
             value={committedEnd ? committedEnd.format(formatForm) : ''}
-            focused={open}
-            size="small"
-            sx={defaultTextFieldStyle}
-            InputProps={defaultInputProps}
+            error={isError}
+            size={size}
+            sx={{
+              width: `${getInputWidth(viewsType)}rem`,
+              '& .MuiInputBase-root, & .MuiInputBase-input': { cursor: 'pointer' },
+              ...props.sx,
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end" sx={{ cursor: 'pointer' }}>
+                  <CalendarTodayIcon sx={{ cursor: 'pointer' }} />
+                </InputAdornment>
+              ),
+              inputProps: { onKeyDown: (e) => e.preventDefault() },
+            }}
           />
         </Box>
 
+        {/* Popup */}
         <Popper open={open} anchorEl={anchorEl} placement="bottom-start">
-          <ClickAwayListener onClickAway={handleClickAway}>
+          <ClickAwayListener onClickAway={() => closePopup('clickaway')}>
             <Paper sx={{ p: 1, display: 'block' }}>
-              {CalendarControls()}
-              <>
-                <Box sx={{ display: 'flex' }}>
-                  <DateCalendar
-                    value={draftStart}
-                    views={resolvedViews}
-                    openTo={viewsType}
-                    sx={{ maxHeight: CalendarmaxHeight }}
-                    onChange={(newDate) => {
-                      setDraftStart(newDate);
-                      if (draftEnd && newDate && newDate.isAfter(draftEnd)) {
-                        setDraftEnd(null);
-                      }
-                    }}
-                    // slots={{
-                    //   day: (dayProps) => (
-                    //     <RangePickersDay {...dayProps} start={draftStart} end={draftEnd} />
-                    //   ),
-                    // }}
-                    slotProps={defaultSlotProps('end')}
-                  />
-                  <DateCalendar
-                    value={draftEnd}
-                    views={resolvedViews}
-                    openTo={viewsType}
-                    sx={{ maxHeight: CalendarmaxHeight }}
-                    minDate={draftStart || undefined}
-                    onChange={(newDate) => setDraftEnd(newDate)}
-                    // slots={{
-                    //   day: (dayProps) => (
-                    //     <RangePickersDay {...dayProps} start={draftStart} end={draftEnd} />
-                    //   ),
-                    // }}
-                    slotProps={defaultSlotProps('end')}
-                  />
-                </Box>
-              </>
+              <CalendarControls viewsType={viewsType} onSelect={handleSetting} />
+              <Box sx={{ display: 'flex' }}>
+                <DateCalendar
+                  value={draftStart}
+                  views={['day', 'month', 'year']}
+                  openTo={viewsType}
+                  onChange={(newDate) => {
+                    setDraftStart(newDate);
+                    if (draftEnd && newDate && newDate.isAfter(draftEnd)) {
+                      setDraftEnd(null);
+                    }
+                  }}
+                  slotProps={createRangeSlotProps(
+                    'start',
+                    () => closePopup('confirm'),
+                    viewsType,
+                    draftStart,
+                    setDraftStart
+                  )}
+                  slots={{
+                    day: (dayProps) => (
+                      <RangePickersDay {...dayProps} start={draftStart} end={draftEnd} />
+                    ),
+                  }}
+                />
+                <DateCalendar
+                  value={draftEnd}
+                  views={['day', 'month', 'year']}
+                  openTo={viewsType}
+                  minDate={draftStart || undefined}
+                  onChange={(newDate) => setDraftEnd(newDate)}
+                  slotProps={createRangeSlotProps(
+                    'end',
+                    () => closePopup('confirm'),
+                    viewsType,
+                    draftEnd,
+                    setDraftEnd
+                  )}
+                  slots={{
+                    day: (dayProps) => (
+                      <RangePickersDay {...dayProps} start={draftStart} end={draftEnd} />
+                    ),
+                  }}
+                />
+              </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Box>
-                  선택 기간:
-                  {draftStart && draftEnd
-                    ? viewsType === 'day'
-                      ? `${draftEnd.diff(draftStart, 'day') + 1}일`
-                      : viewsType === 'month'
-                        ? `${draftEnd.diff(draftStart, 'month') + 1}개월`
-                        : `${draftEnd.diff(draftStart, 'year') + 1}년`
-                    : null}
+                  선택 기간:{' '}
+                  {draftStart && draftEnd ? getRangeLength(draftStart, draftEnd, viewsType) : null}
                 </Box>
-
                 <Box>
-                  <Button size="small" variant="contained" onClick={handleConfirm}>
+                  <Button size="small" variant="contained" onClick={() => closePopup('confirm')}>
                     확인
                   </Button>
-                  <Button size="small" onClick={handleClose}>
+                  <Button size="small" onClick={() => closePopup('cancel')}>
                     취소
                   </Button>
                 </Box>
