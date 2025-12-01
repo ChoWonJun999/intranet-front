@@ -17,6 +17,7 @@ type NavItem = { name: string; url: string; end?: boolean };
 const menus: NavItem[] = [
   { name: '대시보드', url: '/', end: true },
   { name: '사용자 관리', url: '/home' },
+  { name: '구매 관리', url: '/purchase' },
 ];
 
 export default function Navbar() {

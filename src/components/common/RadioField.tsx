@@ -125,7 +125,7 @@ export default function RadioField({
         onChange={handleChange}
         inputRef={idx === 0 ? inputRef : undefined}
         sx={{
-          padding: 0,
+          // padding: 0,
           paddingRight: 1,
         }}
       />
@@ -135,7 +135,7 @@ export default function RadioField({
   return (
     <FormControl error={isError} required={required}>
       {renderLabel()}
-      <RadioGroup name="radio-field" onChange={handleChange} onInvalid={handleInvalid}>
+      <RadioGroup name="radio-field" onChange={handleChange} onInvalid={handleInvalid} row>
         {options.map((opt, idx) => (
           <FormControlLabel
             key={opt.value}
