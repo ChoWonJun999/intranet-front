@@ -52,6 +52,9 @@ function CustomField(props: TextProps) {
         el.setCustomValidity(props.label + '을(를) 입력하세요.');
       }
     },
+    sx: {
+      padding: '3px 10px',
+    },
     onInput: handleInput,
     ...props.inputProps,
   };

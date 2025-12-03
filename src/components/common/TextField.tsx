@@ -52,6 +52,9 @@ function CustomField(props: TextProps) {
 
   const inputProps = {
     maxLength: props.multiline ? 1000 : 100,
+    sx: {
+      padding: '3px 10px',
+    },
     ...props.inputProps,
   };
 

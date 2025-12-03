@@ -1,54 +1,41 @@
 import * as Common from '@/components/common';
-import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+import { Button, Card, CardContent, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-function createData(
-  id: number,
-  date: Date,
-  buyer: string,
-  product: string,
-  unitPrice: number,
-  quantity: number,
-  amount: number
-) {
-  return { id, date, buyer, product, unitPrice, quantity, amount };
-}
+const columns = [
+  { data: 'date', name: '구매일자' },
+  { data: 'buyer', name: '구매자' },
+  { data: 'product', name: '제품/프로모션' },
+  { data: 'unitPrice', name: '구매단가' },
+  { data: 'quantity', name: '구매수량' },
+  { data: 'amount', name: '구매금액' },
+];
 
-const rows = [
-  createData(
-    1,
-    new Date('2025-09-20'),
-    '홍길동',
-    'NEW 어뉴엠 산담은 맑은 청 외 3건',
-    7500,
-    23,
-    172500
-  ),
-  createData(
-    2,
-    new Date('2025-09-20'),
-    '홍길동',
-    'NEW 어뉴엠 산담은 맑은 청 외 3건',
-    7500,
-    23,
-    172500
-  ),
-  createData(
-    3,
-    new Date('2025-09-20'),
-    '홍길동',
-    'NEW 어뉴엠 산담은 맑은 청 외 3건',
-    7500,
-    23,
-    172500
-  ),
+const data = [
+  {
+    date: '2025-09-20',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은 청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
+  {
+    date: '2025-09-20',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은 청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
+  {
+    date: '2025-09-20',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은 청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
 ];
 
 export default function PurchasePage() {
@@ -98,6 +85,9 @@ export default function PurchasePage() {
           </Stack>
         </CardContent>
       </Card>
+
+      <Common.TableField columns={columns} data={data} />
+      {/*
       <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1 }}>
         <Typography variant="h5" component="div">
           조회 결과
@@ -138,6 +128,7 @@ export default function PurchasePage() {
           </TableBody>
         </Table>
       </TableContainer>
+       */}
     </>
   );
 }

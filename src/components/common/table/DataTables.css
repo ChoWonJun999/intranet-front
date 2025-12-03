@@ -1,0 +1,262 @@
+@import 'datatables.net-dt';
+@import 'datatables.net-responsive-dt';
+@import 'datatables.net-select-dt';
+
+@import 'datatables.net-select-dt';
+/* @import 'datatables.net-buttons-dt'; */
+
+.dt-layout-row {
+  margin: 0 !important;
+}
+
+/* 그리드 외곽 */
+table.dataTable.no-footer {
+  border-bottom: 1px solid #bbb !important;
+}
+table.dataTable,
+table.dataTable th,
+table.dataTable td {
+  box-sizing: inherit;
+}
+table.dataTable tr:last-child td {
+  border-bottom-width: 0px !important;
+}
+
+/* 그리드 헤더 */
+table.dataTable thead th,
+table.dataTable thead td {
+  border-bottom: 1px solid #bbb !important;
+  padding: 0;
+}
+
+table.dataTable thead th {
+  padding: 2px 5px !important;
+  text-align: center !important;
+}
+
+th.talign_r {
+  text-align: center !important;
+}
+th.talign_l {
+  text-align: center !important;
+}
+/* 그리드 바디  */
+table.dataTable tbody th,
+table.dataTable tbody td:not(.dataTables_empty) {
+  padding: 0px 5px;
+}
+table.dataTable tbody tr:hover td:not(.tui-calendar-date) {
+  background: #d2f5fa !important;
+}
+table.dataTable tbody tr td .datepicker,
+table.dataTable tbody tr td .dynamic-datepicker {
+  padding-top: 2.5px;
+}
+table.dataTable tbody tr td .datepicker .tui-datepicker-input,
+table.dataTable tbody tr td .dynamic-datepicker .tui-datepicker-input {
+  width: 110px !important;
+}
+table.dataTable tbody tr td.unchange {
+  background: #eef8ff !important;
+}
+table.dataTable tbody tr.unchange td:not(.no_area, .btn_area) {
+  background: #eef8ff !important;
+}
+table.dataTable tbody tr.focus td:not(.tui-calendar-date) {
+  background: #d2f5fa !important;
+  border-top: 1px solid #529acd !important;
+  border-bottom: 1px solid #529acd !important;
+}
+table.dataTable tbody tr.focus td:first-child:not(.tui-calendar-date) {
+  border-left: 1px solid #529acd !important;
+}
+table.dataTable tbody tr.focus td:last-child:not(.tui-calendar-date) {
+  border-right: 1px solid #529acd !important;
+}
+table.dataTable tbody > tr.selected,
+table.dataTable tbody > tr > .selected {
+  background-color: white;
+}
+table.dataTable tbody tr.odd td {
+  background-color: white;
+  max-height: 32px !important;
+}
+table.dataTable tbody tr.even td {
+  background-color: #fafafa;
+  max-height: 32px !important;
+}
+
+/* 揶쏆빘猿� */
+.DTE_Field_InputControl div div {
+  display: inline-block !important;
+}
+.DTE_Field_InputControl select {
+  padding: 0px !important;
+  margin-top: -5px;
+}
+.DTE_Field_InputControl select,
+.DTE_Field_InputControl input {
+  width: 100% !important;
+}
+div.DTE_Inline div.DTE_Field input[type='color'],
+div.DTE_Inline div.DTE_Field input[type='date'],
+div.DTE_Inline div.DTE_Field input[type='datetime'],
+div.DTE_Inline div.DTE_Field input[type='datetime-local'],
+div.DTE_Inline div.DTE_Field input[type='email'],
+div.DTE_Inline div.DTE_Field input[type='month'],
+div.DTE_Inline div.DTE_Field input[type='number'],
+div.DTE_Inline div.DTE_Field input[type='password'],
+div.DTE_Inline div.DTE_Field input[type='search'],
+div.DTE_Inline div.DTE_Field input[type='tel'],
+div.DTE_Inline div.DTE_Field input[type='text'],
+div.DTE_Inline div.DTE_Field input[type='time'],
+div.DTE_Inline div.DTE_Field input[type='url'],
+div.DTE_Inline div.DTE_Field input[type='week'] {
+  margin: 0px 0;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: Ellipsis;
+  white-space: nowrap;
+}
+.pointer:hover {
+  cursor: pointer;
+}
+.no_area {
+  width: 55px !important;
+}
+.btn_area {
+  width: 80px !important;
+}
+.fix_area {
+  width: 80px !important;
+}
+.hidden_area {
+  display: none;
+}
+.none_event_area {
+  pointer-events: none;
+}
+
+/* 데이트 픽커 */
+.dynamic-datepicker.disabled input {
+  background: #eeeeee;
+  pointer-events: none;
+}
+.dynamic-datepicker.disabled span {
+  pointer-events: none;
+}
+
+/* 툴팁 */
+.ui-tooltip {
+  position: absolute;
+  padding: 10px 20px;
+  color: #fff;
+  border-radius: 5px;
+  background: #000;
+}
+.ui-helper-hidden-accessible {
+  display: none !important;
+}
+
+/* 폰트 */
+.a-format {
+  font-weight: bold;
+  color: #0a83da;
+}
+.a-format:hover {
+  text-decoration: underline;
+}
+
+/* 스크롤 테이블 */
+.dataTables_wrapper .dataTables_scroll .dataTables_scrollBody table {
+  border-top: none !important;
+}
+.dataTables_wrapper .dataTables_scroll .dataTables_scrollHead .dataTables_scrollHeadInner table {
+  border-bottom: none !important;
+}
+
+/* 그리드 프린트시 */
+@media print {
+  table.dataTable {
+    width: 72%;
+    float: left;
+  }
+}
+/*
+@media print {
+	html, body {background-color: white;}
+	body * {visibility: hidden;}
+	.box_basic {overflow-x: auto !important;}
+	.dataTables_scrollBody {overflow-x: hidden !important;}
+	.dataTables_scrollHeadInner {width: 100% !important;}
+
+	#print-area {position: absolute; top: 70px; left: 0; height: fit-content !important;}
+
+	#dataTable_wrapper * {visibility: visible;}
+	.dataTables_wrapper.no-footer .dataTables_scrollBody {border-bottom: none;}
+	.dataTable, .no-footer {border-top: 2px solid #666666; width: 100% !important;}
+
+	#consDataTable_wrapper * {visibility: visible;}
+
+	.scroll-container {height: fit-content !important; max-height: fit-content !important;}
+
+	.spreadsheet {top: 70px;}
+	.spreadsheet * {visibility: visible;}
+
+	.print_approval {visibility: visible; position: absolute; top: 0; right: 0; width: 500px !important; display: table;}
+	.print_approval * {visibility: visible;}
+}
+*/
+
+/* 커스텀 */
+table.dataTable {
+  width: 100%;
+  border-top: 2px solid #666666;
+  border-bottom: 1px solid #ccc;
+  color: #333333;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+  background: #fff;
+}
+table.dataTable th,
+table.dataTable td {
+  padding: 3px 5px;
+  border-left: 1px dotted #ccc;
+  border-bottom: 1px dotted #ccc;
+  height: 32px;
+  text-overflow: ellipsis;
+}
+table.dataTable th {
+  font-weight: bold;
+  border-bottom: 1px solid #bbb;
+  background: #f6f6f6;
+}
+table.dataTable th:last-child,
+table.dataTable td:last-child {
+  border-right: 1px dotted #ccc;
+}
+table.dataTable td {
+  text-align: left;
+}
+table.dataTable caption {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: left;
+  margin-bottom: 5px;
+}
+/*
+.dt-container button {
+  font-family: 'Malgun Gothic', '맑은고딕';
+
+  background-color: #2268af !important;
+  border: 1px solid #2268af !important;
+  color: #fff !important;
+  padding: 0 10px !important;
+  line-height: 25px !important;
+  box-shadow: 0px 1px 1px 0px #eee !important;
+  border-radius: 3px !important;
+  box-sizing: border-box !important;
+} */

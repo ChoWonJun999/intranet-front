@@ -84,6 +84,9 @@ function CustomField({
       maxLength,
       pattern,
       onInvalid: handleInvalid,
+      sx: {
+        padding: '3px 10px',
+      },
       ...props.inputProps,
     }),
     [maxLength, pattern, props.inputProps]

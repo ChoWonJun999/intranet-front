@@ -169,10 +169,15 @@ function DateRangeField({ viewsType = 'day', size = 'small', ...props }: DateRan
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end" sx={{ cursor: 'pointer' }}>
-                  <CalendarTodayIcon sx={{ cursor: 'pointer' }} />
+                  <CalendarTodayIcon sx={{ cursor: 'pointer', height: '20px' }} />
                 </InputAdornment>
               ),
-              inputProps: { onKeyDown: (e) => e.preventDefault() },
+              inputProps: {
+                onKeyDown: (e) => e.preventDefault(),
+                sx: {
+                  padding: '3px 10px',
+                },
+              },
             }}
           />
           <Box sx={{ display: 'flex', alignItems: 'center' }}>~</Box>
@@ -190,10 +195,15 @@ function DateRangeField({ viewsType = 'day', size = 'small', ...props }: DateRan
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end" sx={{ cursor: 'pointer' }}>
-                  <CalendarTodayIcon sx={{ cursor: 'pointer' }} />
+                  <CalendarTodayIcon sx={{ cursor: 'pointer', height: '20px' }} />
                 </InputAdornment>
               ),
-              inputProps: { onKeyDown: (e) => e.preventDefault() },
+              inputProps: {
+                onKeyDown: (e) => e.preventDefault(),
+                sx: {
+                  padding: '3px 10px',
+                },
+              },
             }}
           />
         </Box>

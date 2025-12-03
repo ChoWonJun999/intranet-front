@@ -101,10 +101,15 @@ function DateField({ viewsType = 'day', size = 'small', ...props }: DateFieldPro
           InputProps={{
             endAdornment: (
               <InputAdornment position="end" sx={{ cursor: 'pointer' }}>
-                <CalendarTodayIcon sx={{ cursor: 'pointer' }} />
+                <CalendarTodayIcon sx={{ cursor: 'pointer', height: '20px' }} />
               </InputAdornment>
             ),
-            inputProps: { onKeyDown: (e) => e.preventDefault() },
+            inputProps: {
+              onKeyDown: (e) => e.preventDefault(),
+              sx: {
+                padding: '3px 10px',
+              },
+            },
           }}
           sx={{
             width: `${getInputWidth(viewsType)}rem`,

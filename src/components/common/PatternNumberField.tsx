@@ -118,6 +118,9 @@ function CustomField(props: TextProps) {
 
   const inputProps = {
     maxLength: patternLength,
+    sx: {
+      padding: '3px 10px',
+    },
     ...props.inputProps,
   };
 

@@ -9,6 +9,8 @@
 
 /* 기본 문서 설정 */
 html {
+  box-sizing: border-box;
+  background: #ebeff3;
   height: 100%;
   width: 100%;
   line-height: 1.15; /* 브라우저 간 일관성 */
@@ -16,10 +18,17 @@ html {
 }
 
 body {
+  margin: 0;
+  box-sizing: border-box;
+  letter-spacing: -1px;
+
   height: 100%;
   width: 100%;
   min-height: 100dvh; /* 모바일 브라우저 주소창 변동 고려 */
+  font-size: 14px;
   font-family:
+    'Malgun Gothic',
+    '맑은고딕',
     system-ui,
     -apple-system,
     Segoe UI,
@@ -30,8 +39,8 @@ body {
     Arial,
     sans-serif;
   line-height: 1.5;
-  background: #fff;
-  color: #000;
+  background: #ebeff3;
+  color: #333333;
 }
 
 .root {
@@ -46,7 +55,7 @@ h4,
 h5,
 h6,
 p {
-  font: inherit; /* body 설정을 상속 */
+  font-family: inherit;
   font-weight: inherit;
   margin: 0;
 }
@@ -106,6 +115,11 @@ td {
   padding: 0;
 }
 
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
 /* 접근성: 모션 최소화 선호 존중 */
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -122,4 +136,23 @@ td {
 
 .MuiOutlinedInput-root.Mui-focused.Mui-error .MuiOutlinedInput-notchedOutline {
   border-color: #dc2626;
+}
+
+.btnsty_blue {
+  background-color: #2268af;
+  border: 1px solid #2268af;
+  color: #fff;
+  padding: 0 10px;
+  height: 26px;
+  line-height: 25px;
+  box-shadow: 0px 1px 1px 0px #eee;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+.btnsty_blue:hover {
+  background-color: #233b7b;
+  border: 1px solid #003469;
+  cursor: pointer;
+  color: #fff;
+  box-shadow: inset 1px 1px 1px rgb(0 0 0 / 10%);
 }
