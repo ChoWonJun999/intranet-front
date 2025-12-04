@@ -107,7 +107,7 @@ function DateField({ viewsType = 'day', size = 'small', ...props }: DateFieldPro
             inputProps: {
               onKeyDown: (e) => e.preventDefault(),
               sx: {
-                padding: '3px 10px',
+                // padding: '3px 10px',
               },
             },
           }}

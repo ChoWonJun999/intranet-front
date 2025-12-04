@@ -3,35 +3,117 @@ import { Button, Card, CardContent, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const columns = [
-  { data: 'date', name: '구매일자' },
-  { data: 'buyer', name: '구매자' },
-  { data: 'product', name: '제품/프로모션' },
-  { data: 'unitPrice', name: '구매단가' },
-  { data: 'quantity', name: '구매수량' },
-  { data: 'amount', name: '구매금액' },
+  {
+    field: 'date',
+    headerName: '구매일자',
+    width: 150,
+    // type: 'date',
+    // editable: true,
+    // renderEditCell: (params: any) => {
+    //   console.log(params.formattedValue);
+    //   return <Common.DateField defaultValue={params.formattedValue} />;
+    // },
+  },
+  {
+    field: 'buyer',
+    headerName: '구매자',
+    width: 150,
+  },
+  {
+    field: 'product',
+    headerName: '제품/프로모션',
+    description: '등록된 제품',
+    flex: 1,
+  },
+  {
+    field: 'unitPrice',
+    headerName: '구매단가',
+    type: 'number',
+    width: 160,
+  },
+  {
+    field: 'quantity',
+    headerName: '구매수량',
+    type: 'number',
+    width: 160,
+  },
+  {
+    field: 'amount',
+    headerName: '구매금액',
+    type: 'number',
+    width: 160,
+  },
 ];
 
-const data = [
+const rows = [
   {
-    date: '2025-09-20',
+    date: '2025-12-04',
     buyer: '홍길동',
-    product: 'NEW 어뉴엠 산담은 맑은 청 외 3건',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
     unitPrice: 7500,
     quantity: 23,
     amount: 172500,
   },
   {
-    date: '2025-09-20',
+    date: '2025-12-04',
     buyer: '홍길동',
-    product: 'NEW 어뉴엠 산담은 맑은 청 외 3건',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
     unitPrice: 7500,
     quantity: 23,
     amount: 172500,
   },
   {
-    date: '2025-09-20',
+    date: '2025-12-04',
     buyer: '홍길동',
-    product: 'NEW 어뉴엠 산담은 맑은 청 외 3건',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
+  {
+    date: '2025-12-04',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
+  {
+    date: '2025-12-04',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
+  {
+    date: '2025-12-04',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
+  {
+    date: '2025-12-04',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
+  {
+    date: '2025-12-04',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
+    unitPrice: 7500,
+    quantity: 23,
+    amount: 172500,
+  },
+  {
+    date: '2025-12-04',
+    buyer: '홍길동',
+    product: 'NEW 어뉴엠 산담은 맑은청 외 3건',
     unitPrice: 7500,
     quantity: 23,
     amount: 172500,
@@ -43,9 +125,6 @@ export default function PurchasePage() {
 
   const handleSearchClick = () => {
     navigate('/purchase');
-  };
-  const handleNewClick = () => {
-    navigate('/purchase/add');
   };
 
   return (
@@ -86,49 +165,7 @@ export default function PurchasePage() {
         </CardContent>
       </Card>
 
-      <Common.TableField columns={columns} data={data} />
-      {/*
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1 }}>
-        <Typography variant="h5" component="div">
-          조회 결과
-        </Typography>
-        <Stack spacing={1} direction="row">
-          <Button variant="contained" onClick={handleNewClick}>
-            신규입력
-          </Button>
-          <Button variant="contained">엑셀 업로드</Button>
-          <Button variant="contained">엑셀 다운로드</Button>
-        </Stack>
-      </Box>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell align="center">번호</TableCell>
-              <TableCell align="center">구매일자</TableCell>
-              <TableCell align="center">구매자</TableCell>
-              <TableCell align="center">제품/프로모션</TableCell>
-              <TableCell align="center">구매단가</TableCell>
-              <TableCell align="center">구매수량</TableCell>
-              <TableCell align="center">구매금액</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell align="center">{row.id}</TableCell>
-                <TableCell align="center">{row.date.toString()}</TableCell>
-                <TableCell align="center">{row.buyer}</TableCell>
-                <TableCell align="center">{row.product}</TableCell>
-                <TableCell align="right">{row.unitPrice}</TableCell>
-                <TableCell align="right">{row.quantity}</TableCell>
-                <TableCell align="right">{row.amount}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-       */}
+      <Common.TableField columns={columns} rows={rows} />
     </>
   );
 }

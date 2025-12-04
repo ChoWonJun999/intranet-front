@@ -149,10 +149,27 @@ td {
   border-radius: 3px;
   box-sizing: border-box;
 }
+
 .btnsty_blue:hover {
   background-color: #233b7b;
   border: 1px solid #003469;
   cursor: pointer;
   color: #fff;
   box-shadow: inset 1px 1px 1px rgb(0 0 0 / 10%);
+}
+
+.MuiTypography-root {
+  /* margin-bottom: 0 !important; */
+}
+
+.MuiCardContent-root {
+  padding: 16px !important;
+}
+
+.css-1iw3t7y-MuiFormControl-root {
+  display: -webkit-inline-box !important;
+}
+
+.MuiButtonBase-root {
+  /* padding: 0 !important; */
 }
