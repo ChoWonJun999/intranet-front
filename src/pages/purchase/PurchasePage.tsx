@@ -123,9 +123,7 @@ const rows = [
 export default function PurchasePage() {
   const navigate = useNavigate();
 
-  const handleSearchClick = () => {
-    navigate('/purchase');
-  };
+  const handleSearchClick = () => navigate('/purchase');
 
   return (
     <>

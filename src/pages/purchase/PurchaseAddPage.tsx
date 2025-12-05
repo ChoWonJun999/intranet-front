@@ -14,11 +14,10 @@ export default function PurchaseAddPage() {
   type DetailRow = {
     id: number;
     product: string;
-    price: string;
-    qty: string;
-    amount: string;
+    unitPrice: number | null;
+    qty: number | null;
+    amount: number;
   };
-
   const [details, setDetails] = useState<DetailRow[]>([]);
 
   const handleAddClick = () => {
@@ -27,11 +26,32 @@ export default function PurchaseAddPage() {
       {
         id: prev.length + 1,
         product: '',
-        price: '',
-        qty: '',
-        amount: '',
+        unitPrice: null,
+        qty: null,
+        amount: 0,
       },
     ]);
+  };
+
+  const handleDetailChange = (id: number, field: keyof DetailRow, value: number | string) => {
+    setDetails((prev) =>
+      prev.map((row) => {
+        if (row.id !== id) return row;
+
+        const updated = { ...row };
+
+        if (field === 'product') {
+          updated.product = String(value);
+        } else {
+          updated[field] = Number(value);
+        }
+
+        // 숫자 계산
+        updated.amount = (updated.unitPrice || 0) * (updated.qty || 0);
+
+        return updated;
+      })
+    );
   };
 
   return (
@@ -43,27 +63,27 @@ export default function PurchaseAddPage() {
         구매 마스터
       </Typography>
 
-      <Card sx={{ minWidth: 275, marginBottom: 3 }}>
+      <Card sx={{ minWidth: 275, marginBottom: 3, width: 'fit-content' }}>
         <CardContent>
           <TableContainer>
-            <Table sx={{ minWidth: 650 }}>
+            <Table size="small">
               <TableBody>
                 <TableRow>
                   <TableCell align="center">구매순번</TableCell>
                   <TableCell align="center">
-                    <Common.TextField />
+                    <Common.TextField sx={{ width: '100%' }} />
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell align="center">구매일자</TableCell>
                   <TableCell align="center">
-                    <Common.DateField />
+                    <Common.DateField sx={{ width: '100%' }} />
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell align="center">구매회원</TableCell>
                   <TableCell align="center">
-                    <Common.TextField disabled />
+                    <Common.TextField disabled sx={{ width: '100%' }} />
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -85,7 +105,7 @@ export default function PurchaseAddPage() {
       </Box>
 
       <TableContainer id="detail" component={Paper}>
-        <Table sx={{ minWidth: 650 }}>
+        <Table sx={{ minWidth: 650 }} size="small">
           <TableHead>
             <TableRow>
               <TableCell align="center">번호</TableCell>
@@ -105,19 +125,31 @@ export default function PurchaseAddPage() {
                 <TableCell align="center">
                   <select name="" id="">
                     <option value="">선택</option>
+                    <option value="1">NEW 어뉴엠 산담은 맑은청</option>
+                    <option value="2">어뉴엠 내몸에 비움 공식</option>
+                    <option value="3">시그니엠 퍼밍리치 에센스</option>
+                    <option value="4">시그니엠 실키리치 세럼</option>
                   </select>
                 </TableCell>
 
                 <TableCell align="center">
-                  <Common.NumberField disabled />
+                  <Common.NumberField
+                    name="unitPrice"
+                    value={row.unitPrice?.toString() ?? ''}
+                    onValueChange={(num) => handleDetailChange(row.id, 'unitPrice', num)}
+                  />
                 </TableCell>
 
                 <TableCell align="center">
-                  <Common.NumberField />
+                  <Common.NumberField
+                    name="quantity"
+                    value={row.qty?.toString() ?? ''}
+                    onValueChange={(num) => handleDetailChange(row.id, 'qty', num)}
+                  />
                 </TableCell>
 
                 <TableCell align="center">
-                  <Common.NumberField disabled />
+                  <Common.NumberField name="amount" disabled value={row.amount.toString()} />
                 </TableCell>
 
                 <TableCell align="center">

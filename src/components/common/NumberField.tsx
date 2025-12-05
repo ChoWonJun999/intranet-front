@@ -6,6 +6,7 @@ import { NumericFormat } from 'react-number-format';
 export type TextProps = Omit<
   BaseTextFieldProps & {
     onChange?: React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>;
+    onValueChange?: (value: number) => void;
     thousandSeparator?: boolean | string;
     decimalScale?: number;
     fixedDecimalScale?: boolean;
@@ -104,7 +105,8 @@ function CustomField({
   return (
     <NumericFormat
       {...props}
-      value={value}
+      // value={value}
+      value={propValue != null ? String(propValue) : ''}
       inputRef={inputRef}
       customInput={TextField}
       valueIsNumericString
@@ -128,6 +130,9 @@ function CustomField({
         setValue(formattedValue);
         clearValidity();
         validate(value, floatValue);
+        if (props.onValueChange) {
+          props.onValueChange(floatValue ?? 0);
+        }
       }}
       onChange={props.onChange}
       onBlur={handleBlur}
